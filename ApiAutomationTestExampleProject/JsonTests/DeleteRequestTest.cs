@@ -9,33 +9,31 @@
 namespace ApiAutomationTestExampleProject.JsonTests
 {
     using ApiAutomationTestExampleProject.JsonProcessor;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
-    [TestClass]
-    public class DeleteRequestTest
+    [TestFixture]
+    public class DeleteRequestTest : BaseTest
     {
-        [TestMethod]
-        // Delete a specific user object from endpoint
-        // Assume that user with id exists in db
-        public void VerifyDeleteSpecificUserObjectFromEndpoint()
+        [Test]
+        // Delete a specific booking object from endpoint
+        public void VerifyDeleteSpecificBookingObjectFromEndpoint()
         {
-            // Ensure that user object with id 11 exists
+            // Ensure that 11 booking objects initially
             var jsonResponsor = new JsonResponsor();
-            var jsonstring = jsonResponsor.GetJsonStringFromEndpointWithArgument("id=11");
+            var jsonstring = jsonResponsor.GetJsonStringFromEndpointForAllBookingIdObjects();
             var jsonParser = new JsonParser();
-            var users = jsonParser.ConvertJsonStringIntoUserObjects(jsonstring);
-            Assert.AreEqual(1, users.Count);
+            var bookingIdResults = jsonParser.ConvertJsonStringIntoBookingIdResultObjects(jsonstring);
+            Assert.AreEqual(11, bookingIdResults.Count);
 
-            // Delete user with id 11
-            int statusCode = jsonResponsor.DeleteUserObjectFromEndpoint("id", "11");
+            // Delete booking object with id 
+            var statusCode = jsonResponsor.DeleteBookingObjectFromEndpoint(BookingId);
             // Verify successful status code is returned
-            Assert.AreEqual(200, statusCode);
+            Assert.AreEqual(201, statusCode);
 
-            // Attempt to get deleted user object
-            jsonstring = jsonResponsor.GetJsonStringFromEndpointWithArgument("id=11");
-            users = jsonParser.ConvertJsonStringIntoUserObjects(jsonstring);
-            // Verify user object with id 11 is deleted
-            Assert.AreEqual(0, users.Count);
+            // Verify booking object is deleted
+            jsonstring = jsonResponsor.GetJsonStringFromEndpointForAllBookingIdObjects();
+            bookingIdResults = jsonParser.ConvertJsonStringIntoBookingIdResultObjects(jsonstring);
+            Assert.AreEqual(10, bookingIdResults.Count);
         }
     }
 }

@@ -8,45 +8,31 @@
 //-----------------------------------------------------------------------------
 namespace ApiAutomationTestExampleProject.JsonProcessor
 {
-    // Define user ojbect matching to key and value in json string 
+    // Define booking ojbect matching to key and value in json string 
     public class JsonWrapper
     {
-        // User object
-        public class User
+        // Booking object
+        public class Booking
         {
-            public int Id;
-            public string Name;
-            public string Username;
-            public string Email;
-            public Address Address;
-            public string Phone;
-            public string Website;
-            public Company Company;
+            public string firstname;
+            public string lastname;
+            public int totalprice;
+            public bool depositpaid;
+            public Bookingdates bookingdates;
+            public string additionalneeds;
         }
 
-        // Address object
-        public class Address
+        // Booking Dates object
+        public class Bookingdates
         {
-            public string Street;
-            public string Suite;
-            public string City;
-            public string Zipcode;
-            public Geo Geo;
+            public string checkin;
+            public string checkout;
         }
 
-        // Geo object
-        public class Geo
+        // Booking Id object
+        public class BookingIdResult
         {
-            public double Lat;
-            public double Lng;
-        }
-
-        // Company object
-        public class Company
-        {
-            public string Name;
-            public string CatchPhrase;
-            public string Bs;
+            public int bookingid;
         }
     }
 }

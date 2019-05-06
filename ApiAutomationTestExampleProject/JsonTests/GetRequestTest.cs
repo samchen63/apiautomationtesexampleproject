@@ -9,58 +9,37 @@
 namespace ApiAutomationTestExampleProject.JsonTests
 {
     using ApiAutomationTestExampleProject.JsonProcessor;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
-    [TestClass]
-    public class GetRequestTest
+    [TestFixture]
+    public class GetRequestTest : BaseTest
     {
-        [TestMethod]
-        // Get all user objects back from endpoint and verify total amount of objects
-        public void VerifyGetTotalNumberOfUserObjectsFromEndpoint()
+        [Test]
+        // Get all booking id objects back from endpoint and verify total amount of objects
+        public void VerifyGetTotalNumberOfBookingIdResultObjectsFromEndpoint()
         {
             var jsonResponsor = new JsonResponsor();
-            var jsonstring = jsonResponsor.GetJsonStringFromEndpoint();
+            var jsonstring = jsonResponsor.GetJsonStringFromEndpointForAllBookingIdObjects();
             var jsonParser = new JsonParser();
-            var users = jsonParser.ConvertJsonStringIntoUserObjects(jsonstring);
-            Assert.AreEqual(10, users.Count);
+            var bookingIdResults = jsonParser.ConvertJsonStringIntoBookingIdResultObjects(jsonstring);
+            Assert.AreEqual(11, bookingIdResults.Count);
         }
 
-        [TestMethod]
-        // Get specfic user object back from endpoint by passing specific argument
-        public void VerifyAllDetailForSepecficUserOjbectFromEndpoint()
+        [Test]
+        // Get specfic booking object back from endpoint by passing booking id
+        public void VerifyAllDetailForSpecificBookingObjectFromEndpoint()
         {
             var jsonResponsor = new JsonResponsor();
-            var jsonstring = jsonResponsor.GetJsonStringFromEndpointWithArgument("id=1");
+            var jsonString = jsonResponsor.GetJsonStringFromEndpointForSpecificBooking(BookingId);
             var jsonParser = new JsonParser();
-            var users = jsonParser.ConvertJsonStringIntoUserObjects(jsonstring);
-            Assert.AreEqual(1, users.Count);
-            var user = users[0];
-            Assert.AreEqual(1, user.Id);
-            Assert.AreEqual("Leanne Graham", user.Name);
-            Assert.AreEqual("Bret", user.Username);
-            Assert.AreEqual("Sincere@april.biz", user.Email);
-            Assert.AreEqual("Kulas Light", user.Address.Street);
-            Assert.AreEqual("Apt. 556", user.Address.Suite);
-            Assert.AreEqual("Gwenborough", user.Address.City);
-            Assert.AreEqual("92998-3874", user.Address.Zipcode);
-            Assert.AreEqual(-37.3159, user.Address.Geo.Lat);
-            Assert.AreEqual(81.1496, user.Address.Geo.Lng);
-            Assert.AreEqual("1-770-736-8031 x56442", user.Phone);
-            Assert.AreEqual("hildegard.org", user.Website);
-            Assert.AreEqual("Romaguera-Crona", user.Company.Name);
-            Assert.AreEqual("Multi-layered client-server neural-net", user.Company.CatchPhrase);
-            Assert.AreEqual("harness real-time e-markets", user.Company.Bs);
-        }
-
-        [TestMethod]
-        // Get null object back from endpoint by passing invalid argument
-        public void VerifyNoObjectReturnedFromEndpointWithInvalidArgument()
-        {
-            var jsonResponsor = new JsonResponsor();
-            var jsonstring = jsonResponsor.GetJsonStringFromEndpointWithArgument("id=invalid");
-            var jsonParser = new JsonParser();
-            var users = jsonParser.ConvertJsonStringIntoUserObjects(jsonstring);
-            Assert.AreEqual(0, users.Count);
+            var booking = jsonParser.ConvertJsonStringIntoBookingObject(jsonString);
+            Assert.AreEqual(FirstName, booking.firstname);
+            Assert.AreEqual(LastName, booking.lastname);
+            Assert.AreEqual(TotalPrice, booking.totalprice);
+            Assert.AreEqual(DepositPaid, booking.depositpaid);
+            Assert.AreEqual(CheckinDate, booking.bookingdates.checkin);
+            Assert.AreEqual(CheckoutDate, booking.bookingdates.checkout);
+            Assert.AreEqual(AdditionalNeeds, booking.additionalneeds);
         }
     }
 }

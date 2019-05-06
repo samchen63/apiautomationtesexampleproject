@@ -15,69 +15,76 @@ namespace ApiAutomationTestExampleProject.JsonProcessor
     // Send http request to endpoint and retrieve response back
     public class JsonResponsor
     {
-        private readonly string Base_URL = "https://jsonplaceholder.typicode.com/users";
+        private readonly string Base_URL = "http://localhost:3001/booking/";
+        private readonly string Auth_Key = "Authorization";
+        private readonly string Auth_Value = "Basic YWRtaW46cGFzc3dvcmQxMjM=";
 
-        // Get json string from endpoint
-        public string GetJsonStringFromEndpoint()
+        // Delete a booking object from endpoint by passing booking id
+        public int DeleteBookingObjectFromEndpoint(int bookingid)
         {
-            var request = (HttpWebRequest)WebRequest.Create(Base_URL);
-            return ConvertResponseToString(request);
+            var request = CreateHttpWebRequestObject("DELETE", Base_URL + bookingid);
+            request.Headers.Add(Auth_Key, Auth_Value);
+            var response = (HttpWebResponse)request.GetResponse();
+            return (int)response.StatusCode;
         }
-        
-        // Get json string from endpoint by passing certain argument
-        public string GetJsonStringFromEndpointWithArgument(string argument)
+
+        // Put a booking object to endpoint by passing booking id
+        public int PutJsonStringToEndpoint(int bookingid, string json)
         {
-            var request = (HttpWebRequest)WebRequest.Create(Base_URL + "?" + argument);
-            return ConvertResponseToString(request);
+            var request = CreateHttpWebRequestObject("PUT", Base_URL + bookingid);
+            request.Headers.Add(Auth_Key, Auth_Value);
+            WriteJsonStringIntoRequestBody(request, json);
+            var response = (HttpWebResponse)request.GetResponse();
+            return (int)response.StatusCode;
         }
 
         // Post json string to endpoint
-        public int PostJsonStringToEndpoint(string json)
+        public string PostJsonStringToEndpoint(string json)
         {
-            var request = (HttpWebRequest)WebRequest.Create(Base_URL);
-            request.Method = "POST";
-            request.ContentType = "application/json; charset=UTF-8";
-            var streamWriter = new StreamWriter(request.GetRequestStream());
-            streamWriter.Write(json);
-            streamWriter.Flush();
-            streamWriter.Close();
-            var httpResponse = (HttpWebResponse)request.GetResponse();
-            return (int)httpResponse.StatusCode;
+            var request = CreateHttpWebRequestObject("POST", Base_URL);
+            WriteJsonStringIntoRequestBody(request, json);
+            var response = (HttpWebResponse)request.GetResponse();
+            var streamReader = new StreamReader(response.GetResponseStream());
+            return streamReader.ReadToEnd();
         }
 
-        // Delete a user object from endpoint
-        public int DeleteUserObjectFromEndpoint(string key, string value)
+        // Get json string from endpoint by passing booking id
+        public string GetJsonStringFromEndpointForSpecificBooking(int bookingid)
         {
-            var request = (HttpWebRequest)WebRequest.Create(Base_URL);
-            request.Method = "DELETE";
-            request.ContentType = "application/json; charset=UTF-8";
-            request.Headers.Add(key, value);
-            var httpResponse = (HttpWebResponse)request.GetResponse();
-            return (int)httpResponse.StatusCode;
-        }
-
-        // Put a user object to endpoint
-        public int PutJsonStringToEndpoint(string json)
-        {
-            var request = (HttpWebRequest)WebRequest.Create(Base_URL);
-            request.Method = "PUT";
-            request.ContentType = "application/json; charset=UTF-8";
-            var streamWriter = new StreamWriter(request.GetRequestStream());
-            streamWriter.Write(json);
-            streamWriter.Flush();
-            streamWriter.Close();
-            var httpResponse = (HttpWebResponse)request.GetResponse();
-            return (int)httpResponse.StatusCode;
-        }
-
-        // Help method to convert response to json string
-        private string ConvertResponseToString(HttpWebRequest request)
-        {
-            request.ContentType = "application/json; charset=utf-8";
-            var response = request.GetResponse() as HttpWebResponse;
+            var request = CreateHttpWebRequestObject("GET", Base_URL + bookingid);
+            var response = (HttpWebResponse)request.GetResponse();
             var stream = response.GetResponseStream();
             var steamReader = new StreamReader(stream, Encoding.UTF8);
             return steamReader.ReadToEnd();
+        }
+
+        // Get json string from endpoint for all booking id result objects
+        public string GetJsonStringFromEndpointForAllBookingIdObjects()
+        {
+            var request = CreateHttpWebRequestObject("GET", Base_URL);
+            var response = (HttpWebResponse)request.GetResponse();
+            var stream = response.GetResponseStream();
+            var steamReader = new StreamReader(stream, Encoding.UTF8);
+            return steamReader.ReadToEnd();
+        }
+
+        // Help method to create http web request
+        private HttpWebRequest CreateHttpWebRequestObject(string methodName, string url)
+        {
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.Method = methodName;
+            request.ContentType = "application/json; charset=utf-8";
+            request.Accept = "application/json";
+            return request;
+        }
+
+        // Help method to write json string into request body
+        private void WriteJsonStringIntoRequestBody(HttpWebRequest request, string json)
+        {
+            var streamWriter = new StreamWriter(request.GetRequestStream());
+            streamWriter.Write(json);
+            streamWriter.Flush();
+            streamWriter.Close();
         }
     }
 }

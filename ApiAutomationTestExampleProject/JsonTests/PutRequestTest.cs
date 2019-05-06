@@ -8,75 +8,50 @@
 //-----------------------------------------------------------------------------
 namespace ApiAutomationTestExampleProject.JsonTests
 {
-    using System.Collections.Generic;
-
     using ApiAutomationTestExampleProject.JsonProcessor;
     using static ApiAutomationTestExampleProject.JsonProcessor.JsonWrapper;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
-    [TestClass]
-    public class PutRequestTest
+    [TestFixture]
+    public class PutRequestTest : BaseTest
     {
-        [TestMethod]
-        // Update the value of one key in a specific user object and put it to endpoint
-        public void VerifyPutSpecificUserObjectToEndpoint()
+        [Test]
+        // Update the value of a specific booking object and PUT it to endpoint
+        public void VerifyPutSpecificBookingObjectToEndpoint()
         {
-            // New email address
-            string NewEmailAddress = "newemailaddress@april.biz";
-
-            var jsonResponsor = new JsonResponsor();
-            var jsonstring = jsonResponsor.GetJsonStringFromEndpointWithArgument("id=1");
-            var jsonParser = new JsonParser();
-            var users = jsonParser.ConvertJsonStringIntoUserObjects(jsonstring);
-            Assert.AreEqual(1, users.Count);
-            var user = users[0];
-            // Verify initial value of email of a user object
-            Assert.AreEqual("Sincere@april.biz", user.Email);
-
-            // Modify email address to a new one
-            var newUser = new User
+            // Booking object with updated value
+            var booking = new Booking
             {
-                Id = 1,
-                Name = "Leanne Graham",
-                Username = "Bret",
-                Email = NewEmailAddress, // New value of email adress
-                Address = new Address
+                firstname = NewFirstName,
+                lastname = NewLastName,
+                totalprice = NewTotalPrice,
+                depositpaid = NewDepositPaid,
+                bookingdates = new Bookingdates
                 {
-                    Street = "Kulas Light",
-                    Suite = "Apt. 556",
-                    City = "Gwenborough",
-                    Zipcode = "92998-3874",
-                    Geo = new Geo
-                    {
-                        Lat = -37.3159,
-                        Lng = 81.1496
-                    }
+                    checkin = NewCheckinDate,
+                    checkout = NewCheckoutDate
                 },
-                Phone = "1-770-736-8031 x56442",
-                Website = "hildegard.org",
-                Company = new Company
-                {
-                    Name = "Romaguera-Crona",
-                    CatchPhrase = "Multi-layered client-server neural-net",
-                    Bs = "harness real-time e-markets"
-                }
+                additionalneeds = NewAdditionalNeeds
             };
-            users = new List<User>
-            {
-                newUser
-            };
-            var jsonString = jsonParser.ConvertUserObjectsIntoJsonString(users);
-            int statusCode = jsonResponsor.PutJsonStringToEndpoint(jsonString);
+
+            // PUT updated booking object to Endpoint
+            var jsonParser = new JsonParser();
+            var jsonString = jsonParser.ConverBookingObjectIntoJsonString(booking);
+            var jsonResponsor = new JsonResponsor();
+            var statusCode = jsonResponsor.PutJsonStringToEndpoint(BookingId, jsonString);
             // Verify successful status code is returned
             Assert.AreEqual(200, statusCode);
 
-            // Verify email address is updated to new one
-            jsonstring = jsonResponsor.GetJsonStringFromEndpointWithArgument("id=1");
-            users = jsonParser.ConvertJsonStringIntoUserObjects(jsonstring);
-            Assert.AreEqual(1, users.Count);
-            user = users[0];
-            // Verify updated value of email of a user object
-            Assert.AreEqual(NewEmailAddress, user.Email);
+            // Verify updated value of booking object
+            jsonString = jsonResponsor.GetJsonStringFromEndpointForSpecificBooking(BookingId);
+            booking = jsonParser.ConvertJsonStringIntoBookingObject(jsonString);
+            Assert.AreEqual(NewFirstName, booking.firstname);
+            Assert.AreEqual(NewLastName, booking.lastname);
+            Assert.AreEqual(NewTotalPrice, booking.totalprice);
+            Assert.AreEqual(NewDepositPaid, booking.depositpaid);
+            Assert.AreEqual(NewCheckinDate, booking.bookingdates.checkin);
+            Assert.AreEqual(NewCheckoutDate, booking.bookingdates.checkout);
+            Assert.AreEqual(NewAdditionalNeeds, booking.additionalneeds);
         }
     }
 }

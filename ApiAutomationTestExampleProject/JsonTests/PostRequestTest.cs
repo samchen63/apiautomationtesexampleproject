@@ -8,68 +8,65 @@
 //-----------------------------------------------------------------------------
 namespace ApiAutomationTestExampleProject.JsonTests
 {
-    using System.Collections.Generic;
-
     using ApiAutomationTestExampleProject.JsonProcessor;
     using static ApiAutomationTestExampleProject.JsonProcessor.JsonWrapper;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
-    [TestClass]
-    public class PostRequestTest
+    using NUnit.Framework;
+
+    [TestFixture]
+    public class PostRequestTest : BaseTest
     {
-        [TestMethod]
-        // Create a user object and post it to endpoint
-        // Assume that user with id 11 doesn't exist in db
-        public void VerifyPostSpecficUserObjectToEndpoint()
+        int PostBookingId;
+
+        [Test]
+        // Create a booking object and post it to endpoint
+        public void VerifyPostSpecificBookingObjectToEndpoint()
         {
-            // Initially verify no user object with id 11
             var jsonResponsor = new JsonResponsor();
-            var jsonstring = jsonResponsor.GetJsonStringFromEndpointWithArgument("id=11");
             var jsonParser = new JsonParser();
-            var users = jsonParser.ConvertJsonStringIntoUserObjects(jsonstring);
-            Assert.AreEqual(0, users.Count);
 
-            // Create a new user with id 11
-            var newUser = new User
+            // Create a booking object
+            var booking = new Booking
             {
-                Id = 11,
-                Name = "Sam Chen",
-                Username = "SamChen",
-                Email = "sam@chen.com",
-                Address = new Address
+                firstname = NewFirstName,
+                lastname = NewLastName,
+                totalprice = NewTotalPrice,
+                depositpaid = NewDepositPaid,
+                bookingdates = new Bookingdates
                 {
-                    Street = "152 Gloucester St",
-                    Suite = "Suite",
-                    City = "Sydney",
-                    Zipcode = "2000",
-                    Geo = new Geo
-                    {
-                        Lat = 99.9999,
-                        Lng = 11.1111
-                    }
+                    checkin = NewCheckinDate,
+                    checkout = NewCheckoutDate
                 },
-                Phone = "12345678",
-                Website = "http://sam.chen.com",
-                Company = new Company
-                {
-                    Name = "Planit",
-                    CatchPhrase = "Testing Consulting",
-                    Bs = "IT market"
-                }
+                additionalneeds = NewAdditionalNeeds
             };
-            users = new List<User>
-            {
-                newUser
-            };
-            var jsonString = jsonParser.ConvertUserObjectsIntoJsonString(users);
-            int statusCode = jsonResponsor.PostJsonStringToEndpoint(jsonString);
-            // Verify successful status code is returned
-            Assert.AreEqual(201, statusCode);
+            var jsonString = jsonParser.ConverBookingObjectIntoJsonString(booking);
+            var jsonResponse = jsonResponsor.PostJsonStringToEndpoint(jsonString);
+            var bookingResults = jsonParser.ConvertJsonStringIntoBookingIdResultObject(jsonResponse);
+            PostBookingId = bookingResults.bookingid;
 
-            // Get added user object to ensure posting successfully
-            jsonstring = jsonResponsor.GetJsonStringFromEndpointWithArgument("id=11");
-            users = jsonParser.ConvertJsonStringIntoUserObjects(jsonstring);
-            Assert.AreEqual(1, users.Count);
+            // Get booking object and verify details
+            jsonString = jsonResponsor.GetJsonStringFromEndpointForSpecificBooking(PostBookingId);
+            booking = jsonParser.ConvertJsonStringIntoBookingObject(jsonString);
+            Assert.AreEqual(NewFirstName, booking.firstname);
+            Assert.AreEqual(NewLastName, booking.lastname);
+            Assert.AreEqual(NewTotalPrice, booking.totalprice);
+            Assert.AreEqual(NewDepositPaid, booking.depositpaid);
+            Assert.AreEqual(NewCheckinDate, booking.bookingdates.checkin);
+            Assert.AreEqual(NewCheckoutDate, booking.bookingdates.checkout);
+            Assert.AreEqual(NewAdditionalNeeds, booking.additionalneeds);
+        }
+
+        // Class level tear down if test case fails after booking object is created
+        [TearDown]
+        public void ClassCleanUp()
+        {
+            var jsonResponsor = new JsonResponsor();
+            var jsonParser = new JsonParser();
+            var jsonstring = jsonResponsor.GetJsonStringFromEndpointForAllBookingIdObjects();
+            var bookingIdResults = jsonParser.ConvertJsonStringIntoBookingIdResultObjects(jsonstring);
+            if (bookingIdResults.Count > 10)
+            {
+                jsonResponsor.DeleteBookingObjectFromEndpoint(PostBookingId);
+            }
         }
     }
 }
