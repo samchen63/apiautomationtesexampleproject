@@ -1,11 +1,3 @@
-﻿//-----------------------------------------------------------------------------
-// <copyright file="BaseTest.cs" company="Planit Testing">
-//      Copyright © 2019 Planit Testing.
-//      All rights reserved.
-// </copyright>
-// <created>06/05/2019</created>
-// <author>Sam Chen</author>
-//-----------------------------------------------------------------------------
 namespace ApiAutomationTestExampleProject.JsonTests
 {
     using ApiAutomationTestExampleProject.JsonProcessor;
